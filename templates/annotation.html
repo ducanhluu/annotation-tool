@@ -1,18 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
+    <div>
+        <img src="data:image/jpeg;base64,{{ encoded_string.decode() }}" width="250" height="250">
+    </div>
+    {% for pattern in pattern_images %}
+        <div class="column">
 
-    <div class="pattern">
-        {% for pattern in pattern_images %}
             <div>
 
-            <form action="/annotation">
-                <img src="{{ url_for('static', filename=pattern) }}" width="50" height="50">
-                <input type="submit" value="Ok">
-            </form>
+                <form action="/annotation">
+                    <input type="image" src="{{ url_for('static', filename=pattern) }}" width="75" height="75"/>
+                </form>
+                {{ pattern[:-5] }}
             </div>
-        {% endfor %}
-    </div>
 
+        </div>
+    {% endfor %}
     <div><a href="/annotation">Let annotate image!!!</a></div>
 
 {% endblock %}

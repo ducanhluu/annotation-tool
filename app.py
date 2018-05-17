@@ -1,10 +1,26 @@
-from flask import Flask
+from flask import Flask, send_file
 from random import randint
 from flask import render_template
 import os
+from io import BytesIO
+from image_container import ImageContainer
+import base64
 
 PATTERN_FOLDER = "static"
+IMG_DIR = "/home/luud/dataset/deep_fashion"
+SOURCE_FILE = "/home/luud/dataset/deep_fashion/Anno/list_bbox.txt"
+DEST_FILE = ""
+
 app = Flask(__name__)
+
+img_container = ImageContainer(SOURCE_FILE, DEST_FILE, IMG_DIR)
+
+def serve_pil_image(pil_img):
+    img_io = BytesIO()
+    pil_img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    b64 = base64.b64encode(img_io.read())
+    return b64
 
 
 @app.route('/')
@@ -35,11 +51,13 @@ def index():
 
 @app.route("/annotation")
 def annotation():
+    image_to_annotate = img_container.get_image()
+    encoded_string = serve_pil_image(image_to_annotate)
     pattern_images = []
     for pattern in os.listdir(PATTERN_FOLDER):
         pattern_images.append(pattern)
 
-    return render_template('annotation.html', **locals())
+    return render_template('annotation.html', pattern_images=pattern_images, encoded_string=encoded_string)
 
 if __name__ == "__main__":
     app.run()
